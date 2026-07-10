@@ -6,19 +6,19 @@ This repo contains the proposed solution for the exercise in this Gist https://g
 
 ```textmate
 docs/
-    -> Hiearchy.md => Contains the assumptions related to the hierarchy filter implementation. 
+    -> Hierarchy.md => Contains the assumptions related to the hierarchy filter implementation. 
     -> SimpleCache.md => Contains the tasks 2 output which is the code review of the SimpleCache class. 
 
 src/
     main/
         java/
-            com.tempo.techical.interview
+            com.tempo.technical.interview
                 ArrayBasedHierarchy.java -> original implementation from the Gist file. 
                 Hierarchy.java -> Original code of the hierarchy interface. 
                 HierarchyFilter -> proposed solution for the given exercise. 
     test/
         java/
-            com.tempo.techical.interview
+            com.tempo.technical.interview
                 HierarchyTest -> Contains multiple tests and edge cases to test the filter implementation. 
 
 TECHNICAL_SOURCE.md -> Took from the original Gist and contains the general instructions for the exercise. 
@@ -33,7 +33,7 @@ TECHNICAL_SOURCE.md -> Took from the original Gist and contains the general inst
 
 ### Execution
 
-1. Download the project by `git clone git@github.com:smanosalvas/tempo_technical_home_assesstment-.git`
+1. Download the project by `git clone git@github.com:smanosalvas/tempo_technical_home_assessment.git`
 2. Run tests `mvn clean test` 
 3. All tests must pass. 
 

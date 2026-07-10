@@ -71,7 +71,7 @@ public class SimpleCache<K, V>
 2. **Weak consistency under concurrency**: The `get` method is not atomic. While `ConcurrentHashMap` manages concurrency
    for individual map operations, the whole cycle of `get -> check null/expiration -> retrieve -> return` is not fully
    atomic. This may cause some threads to see older entries when they access the same key while another thread is
-   updating it. This is a race-condition risk. It is important to decide whether best-effort cache behavior is enough
+   updating it. This is a weak consistency. It is important to decide whether best-effort cache behavior is enough
    and document it, or implement stronger synchronization between `get` and `put`.
 
 3. **Time source for timestamp**: `System.currentTimeMillis()` uses wall-clock time. This can be a potential problem

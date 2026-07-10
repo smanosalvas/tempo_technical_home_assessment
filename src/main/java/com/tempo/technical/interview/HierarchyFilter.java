@@ -12,13 +12,14 @@ class HierarchyFilter {
         Objects.requireNonNull(hierarchy, "hierarchy must not be null");
         Objects.requireNonNull(nodeIdPredicate, "nodeIdPredicate must not be null");
 
-        int[] filteredNodeIds = new int[hierarchy.size()];
-        int[] filteredDepths = new int[hierarchy.size()];
+        int hierarchySize = hierarchy.size();
+        int[] filteredNodeIds = new int[hierarchySize];
+        int[] filteredDepths = new int[hierarchySize];
 
         int currentFilterIndex = 0;
-        boolean[] pathAcceptedByDepth = new boolean[hierarchy.size()];
+        boolean[] pathAcceptedByDepth = new boolean[hierarchySize];
 
-        for (int nodeIndex = 0; nodeIndex < hierarchy.size(); nodeIndex++)
+        for (int nodeIndex = 0; nodeIndex < hierarchySize; nodeIndex++)
         {
             int currentNodeId = hierarchy.nodeId(nodeIndex);
             int currentDepth = hierarchy.depth(nodeIndex);
