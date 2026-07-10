@@ -1,4 +1,4 @@
-# Tempo technical home assesstment
+# Tempo technical home assessment
 
 This repo contains the proposed solution for the exercise in this Gist https://gist.github.com/hdamoo/d2a6c4026ebe0deaf7b4ceaa3bc5c6c1#submission 
 
