@@ -17,7 +17,7 @@ class HierarchyFilter {
         int[] filteredDepths = new int[hierarchySize];
 
         int currentFilterIndex = 0;
-        boolean[] pathAcceptedByDepth = new boolean[hierarchySize];
+        boolean[] pathAcceptedByDepth = new boolean[hierarchySize];;
 
         for (int nodeIndex = 0; nodeIndex < hierarchySize; nodeIndex++)
         {
@@ -25,13 +25,11 @@ class HierarchyFilter {
             int currentDepth = hierarchy.depth(nodeIndex);
 
             if ( currentDepth == 0 ) {
-                pathAcceptedByDepth[currentDepth] = nodeIdPredicate.test(currentNodeId);;
-            }
-            else if (!pathAcceptedByDepth[currentDepth - 1]) {
+                pathAcceptedByDepth[currentDepth] = nodeIdPredicate.test(currentNodeId);
+            } else if (!pathAcceptedByDepth[currentDepth - 1]) {
                 pathAcceptedByDepth[currentDepth] = false;
-            }
-            else {
-                pathAcceptedByDepth[currentDepth] = nodeIdPredicate.test(currentNodeId) && pathAcceptedByDepth[ currentDepth - 1 ];
+            } else {
+                pathAcceptedByDepth[currentDepth] = nodeIdPredicate.test(currentNodeId);
             }
 
             if (pathAcceptedByDepth[currentDepth]) {
