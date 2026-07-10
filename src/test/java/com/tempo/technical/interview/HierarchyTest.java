@@ -2,6 +2,9 @@ package com.tempo.technical.interview;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -176,7 +179,7 @@ public class HierarchyTest
     }
 
     @Test
-    void testFilterThrowsNullExceptionWhenHierarchyIsNull () {
+    void testShouldThrowsNullExceptionWhenHierarchyIsNull () {
         NullPointerException exception = assertThrows(
                 NullPointerException.class,
                 () -> HierarchyFilter.filter(null, nodeId -> true)
@@ -186,7 +189,7 @@ public class HierarchyTest
     }
 
     @Test
-    void testFilterThrowsNullExceptionWhenPredicateIsNull () {
+    void testShouldThrowNullExceptionWhenPredicateIsNull () {
         Hierarchy unfiltered = new ArrayBasedHierarchy(
                 new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
                 new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
@@ -200,7 +203,7 @@ public class HierarchyTest
     }
 
     @Test
-    void shouldHandleVeryDeepHierarchyWithoutStackOverflow() {
+    void testShouldHandleVeryDeepHierarchyWithoutStackOverflow() {
         int size = 100_000;
         int[] nodeIds = new int[size];
         int[] depths = new int[size];
@@ -219,5 +222,34 @@ public class HierarchyTest
         assertEquals(0, result.depth(0));
         assertEquals(size, result.nodeId(size - 1));
         assertEquals(size - 1, result.depth(size - 1));
+    }
+
+    @Test
+    void testShouldNotEvaluatePredicateForDescendantsOfRejectedNodes() {
+        Hierarchy unfiltered = new ArrayBasedHierarchy(
+                new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+                new int[]{0, 1, 2, 3, 0, 1, 2, 1, 0, 1}
+        );
+
+        List<Integer> evaluatedNodeIds = new ArrayList<>();
+
+        Hierarchy filteredActual = HierarchyFilter.filter(unfiltered, nodeId -> {
+            evaluatedNodeIds.add(nodeId);
+            return nodeId != 1 && nodeId != 7;
+        });
+
+        Hierarchy filteredExpected = new ArrayBasedHierarchy(
+                new int[]{5, 6, 8, 9, 10},
+                new int[]{0, 1, 1, 0, 1}
+        );
+
+        assertEquals(filteredExpected.formatString(), filteredActual.formatString());
+
+        // This result reflects that the predicate is not called for rejected nodes.
+        // 2, 3 and 4 should not appear,
+        assertEquals(
+                List.of(1, 5, 6, 7, 8, 9, 10),
+                evaluatedNodeIds
+        );
     }
 }
