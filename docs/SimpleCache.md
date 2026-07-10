@@ -68,11 +68,26 @@ public class SimpleCache<K, V>
    and memory usage can grow over time. There is a high risk of exhausting host resources and potentially crashing the
    application in production.
 
-2. **Weak consistency under concurrency**: The `get` method is not atomic. While `ConcurrentHashMap` manages concurrency
-   for individual map operations, the whole cycle of `get -> check null/expiration -> retrieve -> return` is not fully
-   atomic. This may cause some threads to see older entries when they access the same key while another thread is
-   updating it. This is a weak consistency. It is important to decide whether best-effort cache behavior is enough
-   and document it, or implement stronger synchronization between `get` and `put`.
+2. The current API only exposes `get` and `put`, so the cache cannot coordinate loading. A stronger design would provide
+   loading semantics, for example `getOrLoad(K key, Function<K, V> loader)`, and use per-key atomic operations such as
+   `ConcurrentHashMap.compute(...)` to ensure only one reload happens for a key at a time. Consider: 
+   ```java
+      public V getOrLoad(K key, Function<K, V> loader) {
+       CacheEntry<V> entry = cache.compute(key, (k, existing) -> {
+           if (existing != null && !isExpired(existing)) {
+               return existing;
+           }
+   
+           V loadedValue = loader.apply(k);
+           return new CacheEntry<>(loadedValue, System.nanoTime());
+       });
+   
+       return entry.value();
+      }
+   ```
+   Be careful when using ConcurrentHashMap.computeIfAbsent(...) for TTL-aware caching. An entry may still exist in the
+   map but be logically expired. In that case, the key is not absent, so the computeIfAbsent mapping function would not
+   run, and the expired entry would not be refreshed.
 
 3. **Time source for timestamp**: `System.currentTimeMillis()` uses wall-clock time. This can be a potential problem
    because the system clock is controlled at the operating-system level and may be adjusted by NTP or changed manually,
@@ -101,3 +116,17 @@ public class SimpleCache<K, V>
    metrics such as hit/miss counts, expired counts, eviction counts, cache size trends, or latency metrics. This may not
    block a basic release, but it limits future debugging, tuning, and production monitoring. The impact may not be
    immediate, but it can slow down incident diagnosis and make performance tuning harder.
+
+## Recommendation 
+
+If this cache is intended for production use, I would not keep extending this custom implementation unless there is a
+strong reason. I would replace it with Caffeine, which already solves most of these concerns in a tested and optimized
+way.
+
+   ```java
+      LoadingCache<K, V> cache = Caffeine.newBuilder()
+        .maximumSize(100_000)
+        .expireAfterWrite(Duration.ofMinutes(1))
+        .recordStats()
+        .build(key -> loadFromSource(key));
+   ```

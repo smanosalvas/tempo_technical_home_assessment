@@ -5,8 +5,9 @@ class ArrayBasedHierarchy implements Hierarchy {
     private final int[] depths;
 
     public ArrayBasedHierarchy(int[] nodeIds, int[] depths) {
-        this.nodeIds = nodeIds;
-        this.depths = depths;
+        // Defensively copy arrays to prevent external mutation after construction.
+        this.nodeIds = nodeIds.clone();
+        this.depths = depths.clone();
     }
 
     @Override

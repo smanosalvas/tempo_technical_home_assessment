@@ -198,4 +198,26 @@ public class HierarchyTest
 
         assertEquals("nodeIdPredicate must not be null", exception.getMessage());
     }
+
+    @Test
+    void shouldHandleVeryDeepHierarchyWithoutStackOverflow() {
+        int size = 100_000;
+        int[] nodeIds = new int[size];
+        int[] depths = new int[size];
+
+        for (int i = 0; i < size; i++) {
+            nodeIds[i] = i + 1;
+            depths[i] = i;
+        }
+
+        Hierarchy hierarchy = new ArrayBasedHierarchy(nodeIds, depths);
+
+        Hierarchy result = HierarchyFilter.filter(hierarchy, nodeId -> true);
+
+        assertEquals(size, result.size());
+        assertEquals(1, result.nodeId(0));
+        assertEquals(0, result.depth(0));
+        assertEquals(size, result.nodeId(size - 1));
+        assertEquals(size - 1, result.depth(size - 1));
+    }
 }

@@ -28,7 +28,11 @@ class HierarchyFilter {
 
             if ( currentDepth == 0 ) {
                 pathAcceptedByDepth[currentDepth] = isMatch;
-            } else {
+            }
+            else if (!pathAcceptedByDepth[currentDepth - 1]) {
+                pathAcceptedByDepth[currentDepth] = false;
+            }
+            else {
                 pathAcceptedByDepth[currentDepth] = isMatch && pathAcceptedByDepth[ currentDepth - 1 ];
             }
 
