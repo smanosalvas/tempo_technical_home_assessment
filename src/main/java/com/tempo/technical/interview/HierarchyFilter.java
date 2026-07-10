@@ -24,16 +24,14 @@ class HierarchyFilter {
             int currentNodeId = hierarchy.nodeId(nodeIndex);
             int currentDepth = hierarchy.depth(nodeIndex);
 
-            boolean isMatch = nodeIdPredicate.test(currentNodeId);
-
             if ( currentDepth == 0 ) {
-                pathAcceptedByDepth[currentDepth] = isMatch;
+                pathAcceptedByDepth[currentDepth] = nodeIdPredicate.test(currentNodeId);;
             }
             else if (!pathAcceptedByDepth[currentDepth - 1]) {
                 pathAcceptedByDepth[currentDepth] = false;
             }
             else {
-                pathAcceptedByDepth[currentDepth] = isMatch && pathAcceptedByDepth[ currentDepth - 1 ];
+                pathAcceptedByDepth[currentDepth] = nodeIdPredicate.test(currentNodeId) && pathAcceptedByDepth[ currentDepth - 1 ];
             }
 
             if (pathAcceptedByDepth[currentDepth]) {

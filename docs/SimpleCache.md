@@ -68,7 +68,7 @@ public class SimpleCache<K, V>
    and memory usage can grow over time. There is a high risk of exhausting host resources and potentially crashing the
    application in production.
 
-2. The current API only exposes `get` and `put`, so the cache cannot coordinate loading. A stronger design would provide
+2. **Cache stampede / thundering herd risk**: The current API only exposes `get` and `put`, so the cache cannot coordinate loading. A stronger design would provide
    loading semantics, for example `getOrLoad(K key, Function<K, V> loader)`, and use per-key atomic operations such as
    `ConcurrentHashMap.compute(...)` to ensure only one reload happens for a key at a time. Consider: 
    ```java
@@ -119,14 +119,21 @@ public class SimpleCache<K, V>
 
 ## Recommendation 
 
-If this cache is intended for production use, I would not keep extending this custom implementation unless there is a
-strong reason. I would replace it with Caffeine, which already solves most of these concerns in a tested and optimized
-way.
+For production usage, I would recommend replacing this custom cache implementation with a mature caching library such as
+Caffeine or Guava, rather than continuing to extend the current implementation manually. These libraries already provide
+common production features such as TTL expiration, max-size eviction, loading semantics, refresh strategies, concurrency
+optimizations, and cache statistics.
 
-   ```java
-      LoadingCache<K, V> cache = Caffeine.newBuilder()
-        .maximumSize(100_000)
-        .expireAfterWrite(Duration.ofMinutes(1))
-        .recordStats()
-        .build(key -> loadFromSource(key));
-   ```
+Example using Caffeine:
+
+```java
+   LoadingCache<K, V> cache = Caffeine.newBuilder()
+   .maximumSize(100_000)
+   .expireAfterWrite(Duration.ofMinutes(1))
+   .recordStats()
+   .build(key -> loadFromSource(key));
+```
+
+This would address several concerns in the current implementation: unbounded growth, hardcoded TTL behavior, missing
+eviction strategy, cache stampede risk, and lack of observability. Caffeine would be my first choice for a modern Java
+in-memory cache; Guava Cache is also a valid alternative, especially in projects that already depend on Guava.
