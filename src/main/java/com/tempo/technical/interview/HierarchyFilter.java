@@ -24,15 +24,26 @@ class HierarchyFilter {
             int currentNodeId = hierarchy.nodeId(nodeIndex);
             int currentDepth = hierarchy.depth(nodeIndex);
 
-            if ( currentDepth == 0 ) {
-                pathAcceptedByDepth[currentDepth] = nodeIdPredicate.test(currentNodeId);
-            } else if (!pathAcceptedByDepth[currentDepth - 1]) {
-                pathAcceptedByDepth[currentDepth] = false;
-            } else {
-                pathAcceptedByDepth[currentDepth] = nodeIdPredicate.test(currentNodeId);
-            }
+            boolean parentAccepted = currentDepth == 0 ||
+                pathAcceptedByDepth[currentDepth - 1];
 
-            if (pathAcceptedByDepth[currentDepth]) {
+            boolean descendantAccepted = 
+                parentAccepted && 
+                pathAcceptedByDepth[currentDepth] = nodeIdPredicate.test(currentNodeId);
+
+            // if ( currentDepth == 0 ) {
+            //     //pathAcceptedByDepth[currentDepth] = [true]
+            //     //pathAcceptedByDepth[currentDepth] = [false]
+            //     pathAcceptedByDepth[currentDepth] = nodeIdPredicate.test(currentNodeId);
+            // } else if (!pathAcceptedByDepth[currentDepth - 1]) {
+            //     pathAcceptedByDepth[currentDepth] = false;
+            // } else {
+            //     //pathAcceptedByDepth[currentDepth] = [true, true]
+            //     //pathAcceptedByDepth[currentDepth] = [true, false]
+            //     pathAcceptedByDepth[currentDepth] = nodeIdPredicate.test(currentNodeId);
+            // }
+
+            if (parentAccepted) {
                 filteredNodeIds[currentFilterIndex] = currentNodeId;
                 filteredDepths[currentFilterIndex] = currentDepth;
 

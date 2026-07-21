@@ -8,11 +8,13 @@ code to production. Please provide a clear explanation of each issue and its pot
 
 ```java
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ReentrantLock;
 
 public class SimpleCache<K, V>
 {
     private final ConcurrentHashMap<K, CacheEntry<V>> cache = new ConcurrentHashMap<>();
     private final long ttlMs = 60000; // 1 minute
+    private final ReentrantLock lock = new ReentrantLock();
 
     public static class CacheEntry<V>
     {
@@ -38,20 +40,45 @@ public class SimpleCache<K, V>
 
     public void put(K key, V value)
     {
-        cache.put(key, new CacheEntry<>(value, System.currentTimeMillis()));
+        lock.lock();
+        try {
+            cache.put(key, new CacheEntry<>(value, System.currentTimeMillis()));
+        } finally {
+            lock.unlock();
+        }
+        
     }
 
     public V get(K key)
     {
-        CacheEntry<V> entry = cache.get(key);
-        if (entry != null)
-        {
-            if (System.currentTimeMillis() - entry.getTimestamp() < ttlMs)
-            {
-                return entry.getValue();
+        // lock.lock();
+
+        // try {
+        //     CacheEntry<V> entry = cache.get(key);
+        //     if (entry != null)
+        //     {
+        //         if (System.currentTimeMillis() - entry.getTimestamp() < ttlMs)
+        //         {
+        //             return entry.getValue();
+        //         }
+        //     }
+        //     return null;
+        // } finally {
+        //     lock.unlock();
+        // }
+
+        CacheEntry<V> entry = cache.compute(key, (k, currentValue) -> {
+            if(entry == null || isExpired(currentValue)) {
+                return null;
             }
-        }
-        return null;
+            return currentValue;
+        });
+        
+        return entry.value;
+    }
+
+    public boolean isExpired() {
+        return System.currentTimeMillis() - entry.getTimestamp() >= ttlMs;
     }
 
     public int size()
